@@ -45,7 +45,8 @@ class OpenAIProvider(LLMProvider):
         response = self.client.chat.completions.create(
             model=self.model_name,
             messages=messages,
-            timeout=60.0,
+            timeout=120.0,
+            max_tokens=1200,
         )
 
         end_time = time.time()
