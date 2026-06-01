@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPTC Pirate Rumble — Strategy Agent Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0b0c16;
+            --bg-card: rgba(20, 22, 41, 0.7);
+            --bg-card-hover: rgba(30, 33, 61, 0.85);
+            --accent-primary: #8a2be2;
+            --accent-secondary: #00f2fe;
+            --accent-success: #00e676;
+            --accent-error: #ff1744;
+            --text-primary: #f5f6fa;
+            --text-secondary: #a0a5c0;
+            --border-glow: rgba(138, 43, 226, 0.3);
+            --font-family: 'Outfit', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(138, 43, 226, 0.15) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(0, 242, 254, 0.1) 0px, transparent 50%);
+        }
+
+        /* Header Style */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 40px;
+            background: rgba(11, 12, 22, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-badge {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.4);
+        }
+
+        .logo-title h1 {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(to right, #fff, var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-title p {
+            font-size: 11px;
+            color: var(--accent-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Container & Grid layout */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            width: fit-content;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: var(--font-family);
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-btn.active, .tab-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .tab-btn.active {
+            border-bottom: 2px solid var(--accent-secondary);
+        }
+
+        .view-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .view-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dashboard Overview cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-glow);
+            box-shadow: 0 10px 25px rgba(138, 43, 226, 0.15);
+        }
+
+        .metric-info h3 {
+            font-size: 13px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .metric-icon {
+            font-size: 36px;
+            opacity: 0.8;
+        }
+
+        /* Comparison Section */
+        .comparison-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .comparison-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .comparison-column {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .comparison-column::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .chatbot-col::before {
+            background: var(--accent-error);
+        }
+
+        .agent-col::before {
+            background: var(--accent-success);
+        }
+
+        .col-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .col-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .chatbot-col .col-badge {
+            background: rgba(255, 23, 68, 0.15);
+            color: var(--accent-error);
+        }
+
+        .agent-col .col-badge {
+            background: rgba(0, 230, 118, 0.15);
+            color: var(--accent-success);
+        }
+
+        .col-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .col-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .squad-visualizer {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            min-height: 250px;
+        }
+
+        .squad-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        .squad-slots {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .slot-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 10px 16px;
+            border-radius: 8px;
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .slot-row:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateX(4px);
+        }
+
+        .chatbot-col .slot-row {
+            border-left-color: var(--accent-error);
+        }
+
+        .agent-col .slot-row {
+            border-left-color: var(--accent-success);
+        }
+
+        .char-ident {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .char-id-tag {
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .char-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .char-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge-type {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .badge-str { background: rgba(255, 23, 68, 0.2); color: var(--accent-error); }
+        .badge-qck { background: rgba(0, 242, 254, 0.2); color: var(--accent-secondary); }
+        .badge-psy { background: rgba(255, 235, 59, 0.2); color: #ffeb3b; }
+        .badge-int { background: rgba(138, 43, 226, 0.2); color: #e040fb; }
+        .badge-dex { background: rgba(0, 230, 118, 0.2); color: var(--accent-success); }
+
+        .squad-rating {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .rating-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .rating-value {
+            font-weight: 800;
+            font-size: 18px;
+        }
+
+        .chatbot-col .rating-value { color: var(--accent-error); }
+        .agent-col .rating-value { color: var(--accent-success); }
+
+        /* ReAct visualizer list */
+        .react-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .timeline-step {
+            display: flex;
+            gap: 20px;
+            position: relative;
+        }
+
+        .timeline-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 40px;
+            bottom: -20px;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .step-num {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(138, 43, 226, 0.15);
+            border: 2px solid var(--accent-primary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 16px;
+            flex-shrink: 0;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.2);
+        }
+
+        .step-content {
+            flex-grow: 1;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .step-thought {
+            font-style: italic;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            line-height: 1.5;
+            font-size: 14px;
+            position: relative;
+            padding-left: 12px;
+            border-left: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .step-action-obs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .step-action-obs {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .act-box, .obs-box {
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 13px;
+        }
+
+        .act-box {
+            background: rgba(0, 242, 254, 0.04);
+            border: 1px solid rgba(0, 242, 254, 0.1);
+        }
+
+        .act-title {
+            color: var(--accent-secondary);
+            font-weight: 700;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        .act-cmd {
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .obs-box {
+            background: rgba(0, 230, 118, 0.04);
+            border: 1px solid rgba(0, 230, 118, 0.1);
+        }
+
+        .obs-title {
+            color: var(--accent-success);
+            font-weight: 700;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        .obs-data {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            max-height: 80px;
+            overflow-y: auto;
+        }
+
+        /* Character Box View */
+        .box-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .char-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .char-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(0, 242, 254, 0.2);
+            box-shadow: 0 10px 25px rgba(0, 242, 254, 0.1);
+        }
+
+        .char-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .char-classes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .class-tag {
+            font-size: 11px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: var(--text-secondary);
+        }
+
+        .char-stats {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .stat-item span {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .banner-imu {
+            background: linear-gradient(135deg, #1b0a1a, #0b0c16);
+            border: 1px solid rgba(255, 23, 68, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .banner-imu::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 250px;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 23, 68, 0.15) 0%, transparent 70%);
+            z-index: 1;
+        }
+
+        .banner-info {
+            position: relative;
+            z-index: 2;
+        }
+
+        .banner-info h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #ff1744;
+            text-shadow: 0 0 20px rgba(255, 23, 68, 0.3);
+            margin-bottom: 6px;
+        }
+
+        .banner-info p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .enemy-avatars {
+            display: flex;
+            gap: 12px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .enemy-avatar-card {
+            background: rgba(255, 23, 68, 0.08);
+            border: 1px solid rgba(255, 23, 68, 0.2);
+            padding: 10px 16px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .enemy-name {
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        /* LIVE WEB CHAT STYLE */
+        .chat-container {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+            position: relative;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding-right: 10px;
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .bubble-user {
+            background: linear-gradient(135deg, var(--accent-primary), #6f1ab6);
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.2);
+        }
+
+        .bubble-agent {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex-grow: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 16px 20px;
+            color: #fff;
+            font-family: var(--font-family);
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent-secondary);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+        }
+
+        .chat-send-btn {
+            background: linear-gradient(135deg, var(--accent-secondary), #00b0ff);
+            color: #0b0c16;
+            border: none;
+            padding: 16px 30px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: var(--font-family);
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .chat-send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 242, 254, 0.5);
+        }
+
+        .chat-send-btn:disabled {
+            background: #4a4d61;
+            color: #a0a5c0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .chat-bubble-steps-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--accent-secondary);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 14px;
+            font-family: var(--font-family);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chat-bubble-steps-btn:hover {
+            background: rgba(0, 242, 254, 0.1);
+            border-color: var(--accent-secondary);
+        }
+
+        .loading-bubbles {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            display: none;
+        }
+
+        .loading-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-secondary);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+
+        .chat-steps-display {
+            display: none;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            animation: slideDown 0.3s ease-out forwards;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-section">
+            <div class="logo-badge">RE-ACT</div>
+            <div class="logo-title">
+                <h1>OPTC Strategy System</h1>
+                <p>Chatbot Baseline vs ReAct Agent</p>
+            </div>
+        </div>
+        <div>
+            <span style="font-size: 12px; color: var(--accent-secondary); font-weight: 600; padding: 6px 12px; border-radius: 6px; background: rgba(0, 242, 254, 0.06); border: 1px solid rgba(0, 242, 254, 0.1);">
+                🔴 ACTIVE PROVIDER: DEEPSEEK (V4-FLASH)
+            </span>
+        </div>
+    </header>
+
+    <main>
+        <div class="banner-imu">
+            <div class="banner-info">
+                <h2>🏴‍☠️ THỬ THÁCH: BẠI TRẬN FIVE ELDERS (TEAM IMU)</h2>
+                <p>Mục tiêu: Tìm đội hình tối ưu khắc chế Imu, Saturn và Mars (tất cả hệ STR, nguy cơ Khóa chiêu & Giảm 50% chỉ số).</p>
+            </div>
+            <div class="enemy-avatars">
+                <div class="enemy-avatar-card">
+                    <span class="badge-type badge-str">STR</span>
+                    <div class="enemy-name">Saturn</div>
+                </div>
+                <div class="enemy-avatar-card">
+                    <span class="badge-type badge-str">STR</span>
+                    <div class="enemy-name">Mars</div>
+                </div>
+                <div class="enemy-avatar-card">
+                    <span class="badge-type badge-str">STR</span>
+                    <div class="enemy-name">Imu</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('dashboard')">So Sánh Chiến Thuật</button>
+            <button class="tab-btn" onclick="switchTab('live-chat')">💬 Live ReAct Chat</button>
+            <button class="tab-btn" onclick="switchTab('react')">Vòng Lặp ReAct Trực Quan</button>
+            <button class="tab-btn" onclick="switchTab('character-box')">Kho Tướng Của Bạn (Box)</button>
+        </div>
+
+        <!-- DASHBOARD VIEW -->
+        <div id="dashboard" class="view-content active">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-info">
+                        <h3>Độ Chính Xác Chiến Thuật</h3>
+                        <div class="metric-value" style="color: var(--accent-success); -webkit-text-fill-color: initial;">90.0%</div>
+                    </div>
+                    <div class="metric-icon">🎯</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-info">
+                        <h3>Số Bước Suy Luận</h3>
+                        <div class="metric-value">8 Steps</div>
+                    </div>
+                    <div class="metric-icon">🧠</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-info">
+                        <h3>Thời Gian Phản Hồi TB</h3>
+                        <div class="metric-value">8.2 Giây</div>
+                    </div>
+                    <div class="metric-icon">⏱️</div>
+                </div>
+            </div>
+
+            <div class="comparison-layout">
+                <!-- CHATBOT COLUMN -->
+                <div class="comparison-column chatbot-col">
+                    <div class="col-header">
+                        <span class="col-badge">Chatbot Baseline</span>
+                        <span style="font-size: 24px;">🤖</span>
+                    </div>
+                    <h2 class="col-title" style="margin-bottom: 12px; color: var(--accent-error);">Chỉ Gọi LLM 1 Lần (Không Công Cụ)</h2>
+                    <p class="col-description">
+                        Mô hình ngôn ngữ tự phán đoán câu trả lời ngay lập tức bằng dữ liệu tĩnh. Không nắm được thực tế các tướng hiện có trong box, dẫn đến ảo tưởng đề xuất các tướng sai hệ hoặc tướng người chơi không sở hữu.
+                    </p>
+                    <div class="squad-visualizer">
+                        <div class="squad-title">Đội hình đề xuất ảo tưởng</div>
+                        <div class="squad-slots">
+                            <div class="slot-row">
+                                <div class="char-ident">
+                                    <div class="char-id-tag">#???</div>
+                                    <div class="char-name">Vegapunk (Hỗ Trợ)</div>
+                                </div>
+                                <div class="char-meta">
+                                    <span class="badge-type badge-int">INT</span>
+                                </div>
+                            </div>
+                            <div class="slot-row">
+                                <div class="char-ident">
+                                    <div class="char-id-tag">#???</div>
+                                    <div class="char-name">Lilith (Lá Chắn)</div>
+                                </div>
+                                <div class="char-meta">
+                                    <span class="badge-type badge-psy">PSY</span>
+                                </div>
+                            </div>
+                            <div class="slot-row">
+                                <div class="char-ident">
+                                    <div class="char-id-tag">#???</div>
+                                    <div class="char-name">Kaido (Attacker)</div>
+                                </div>
+                                <div class="char-meta">
+                                    <span class="badge-type badge-int">INT</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="squad-rating">
+                            <div class="rating-label">Điểm số hiệu quả (Score):</div>
+                            <div class="rating-value">30 / 100</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RE-ACT AGENT COLUMN -->
+                <div class="comparison-column agent-col">
+                    <div class="col-header">
+                        <span class="col-badge">ReAct Strategy Agent</span>
+                        <span style="font-size: 24px;">🔥</span>
+                    </div>
+                    <h2 class="col-title" style="margin-bottom: 12px; color: var(--accent-success);">Vòng Lặp ReAct Đa Bước Có Công Cụ</h2>
+                    <p class="col-description">
+                        Agent suy nghĩ từng bước và kích hoạt công cụ để truy vấn in-game database thực tế. Tự động nhận diện Saturn là STR, lọc tướng hệ QCK, tìm kiếm tướng kháng Khóa chiêu, kiểm tra synergy 100% của thủ lĩnh.
+                    </p>
+                    <div class="squad-visualizer" style="background: rgba(0, 230, 118, 0.03);">
+                        <div class="squad-title">Đội hình tối ưu thực tế từ ReAct</div>
+                        <div class="squad-slots">
+                            <div class="slot-row">
+                                <div class="char-ident">
+                                    <div class="char-id-tag">#4562</div>
+                                    <div class="char-name">Blackbeard (Trưởng Nhóm)</div>
+                                </div>
+                                <div class="char-meta">
+                                    <span class="badge-type badge-qck">QCK</span>
+                                </div>
+                            </div>
+                            <div class="slot-row">
+                                <div class="char-ident">
+                                    <div class="char-id-tag">#4490</div>
+                                    <div class="char-name">Luffy & Bonney (Attacker)</div>
+                                </div>
+                                <div class="char-meta">
+                                    <span class="badge-type badge-psy">PSY</span>
+                                </div>
+                            </div>
+                            <div class="slot-row">
+                                <div class="char-ident">
+                                    <div class="char-id-tag">#4537</div>
+                                    <div class="char-name">Luffy & Broggy (Giảm Debuff)</div>
+                                </div>
+                                <div class="char-meta">
+                                    <span class="badge-type badge-str">STR</span>
+                                </div>
+                            </div>
+                            <div class="slot-row">
+                                <div class="char-ident">
+                                    <div class="char-id-tag">#4558</div>
+                                    <div class="char-name">DEX Luffy (Counter ATK Down)</div>
+                                </div>
+                                <div class="char-meta">
+                                    <span class="badge-type badge-dex">DEX</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="squad-rating">
+                            <div class="rating-label">Điểm số hiệu quả (Score):</div>
+                            <div class="rating-value" style="color: var(--accent-success);">72 / 100</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LIVE CHAT VIEW -->
+        <div id="live-chat" class="view-content">
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="chat-bubble bubble-agent">
+                        Chào bạn! Tôi là **OPTC Pirate Rumble ReAct Agent**. Hãy nhập câu hỏi bất kỳ về chiến thuật hoặc nhờ tôi quét box để tìm kiếm các đội hình cộng hưởng tối ưu nhất nhé!
+                    </div>
+                </div>
+                
+                <div class="loading-bubbles" id="loadingBubbles">
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                    <span style="font-size: 12px; color: var(--text-secondary); margin-left: 8px;">Agent đang phân tích & chạy các công cụ ReAct...</span>
+                </div>
+
+                <div class="chat-input-area">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="Ví dụ: Lọc các tướng hệ INT có trong box của tôi..." onkeydown="if(event.key === 'Enter') sendQuery()">
+                    <button class="chat-send-btn" id="sendBtn" onclick="sendQuery()">Gửi Câu Hỏi</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- REACT TIMELINE VIEW -->
+        <div id="react" class="view-content">
+            <div class="sim-actions">
+                <h2>🧠 MÔ PHỎNG VÒNG LẶP SUY LUẬN REACT</h2>
+            </div>
+            <div class="react-timeline">
+                <!-- STEP 0 -->
+                <div class="timeline-step">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        <div class="step-thought">
+                            "Yêu cầu của người chơi là xây dựng đội hình khắc chế đội quân Five Elders (team_imu). Đầu tiên, tôi phải sử dụng công cụ phân tích để biết chi tiết về thuộc tính, sức mạnh và các debuff nguy hại của Saturn, Mars và Imu."
+                        </div>
+                        <div class="step-action-obs">
+                            <div class="act-box">
+                                <div class="act-title">Action (Gọi Công Cụ)</div>
+                                <div class="act-cmd">analyze_enemy("team_imu")</div>
+                            </div>
+                            <div class="obs-box">
+                                <div class="obs-title">Observation (Kết Quả Nhận Được)</div>
+                                <div class="obs-data">Đội hình STR. Saturn: Áp dụng khóa Ability Bind và Special CT down cực mạnh. Mars: Kháng SPD. Imu: Sát thương AoE khủng khiếp.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 1 -->
+                <div class="timeline-step">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        <div class="step-thought">
+                            "Kẻ địch đều là hệ STR. Theo bảng thuộc tính, tôi nên ưu tiên tìm kiếm các tướng hệ QCK để tối ưu hóa 2.0x sát thương khắc hệ. Hãy xác nhận điều này qua bảng matchup."
+                        </div>
+                        <div class="step-action-obs">
+                            <div class="act-box">
+                                <div class="act-title">Action (Gọi Công Cụ)</div>
+                                <div class="act-cmd">get_type_matchup("QCK")</div>
+                            </div>
+                            <div class="obs-box">
+                                <div class="obs-title">Observation (Kết Quả Nhận Được)</div>
+                                <div class="obs-data">QCK khắc chế STR: Nhận sát thương giảm 0.5x, gây sát thương tăng 2.0x lên STR.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2 -->
+                <div class="timeline-step">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <div class="step-thought">
+                            "Mục tiêu lớn nhất là tìm kiếm tướng hệ QCK trong box của người chơi có khả năng giải trừ hoặc counter trạng thái khóa chiêu 'Ability Bind' từ Saturn."
+                        </div>
+                        <div class="step-action-obs">
+                            <div class="act-box">
+                                <div class="act-title">Action (Gọi Công Cụ)</div>
+                                <div class="act-cmd">search_box("counter=Ability Bind")</div>
+                            </div>
+                            <div class="obs-box">
+                                <div class="obs-title">Observation (Kết Quả Nhận Được)</div>
+                                <div class="obs-data">Tìm thấy: #4562 Blackbeard - Emperor (QCK, class Driven, Free Spirit). Có khả năng kháng & giảm Special Bind, tăng tốc độ và tạo lá chắn.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3 -->
+                <div class="timeline-step">
+                    <div class="step-num">4</div>
+                    <div class="step-content">
+                        <div class="step-thought">
+                            "Blackbeard là thủ lĩnh QCK lý tưởng. Bây giờ tôi cần kiểm tra độ cộng hưởng kỹ năng (Synergy) khi cho Blackbeard làm đội trưởng đi cùng các đồng đội mạnh khác trong box như Luffy & Bonney (#4490), Luffy & Broggy (#4537) và DEX Luffy."
+                        </div>
+                        <div class="step-action-obs">
+                            <div class="act-box">
+                                <div class="act-title">Action (Gọi Công Cụ)</div>
+                                <div class="act-cmd">check_leader_synergy("4562, 4490, 4537, 4558, 4564")</div>
+                            </div>
+                            <div class="obs-box">
+                                <div class="obs-title">Observation (Kết Quả Nhận Được)</div>
+                                <div class="obs-data">Chỉ số cộng hưởng: 100% Synergy! Thủ lĩnh Blackbeard buff toàn diện tốc độ, giáp và sát thương cho tất cả thành viên trong nhóm.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHARACTER BOX VIEW -->
+        <div id="character-box" class="view-content">
+            <div class="sim-actions">
+                <h2>📦 DANH SÁCH TƯỚNG TRONG BOX CỦA BẠN (PLAYER_BOX)</h2>
+            </div>
+            <div class="box-grid">
+                <!-- 1. Blackbeard - Emperor -->
+                <div class="char-card">
+                    <div class="char-header">
+                        <strong class="char-name">Blackbeard - Emperor</strong>
+                        <span class="badge-type badge-qck">QCK</span>
+                    </div>
+                    <div class="char-classes">
+                        <span class="class-tag">Driven</span>
+                        <span class="class-tag">Free Spirit</span>
+                    </div>
+                    <div class="char-stats">
+                        <div class="stat-item">ID: <span>#4562</span></div>
+                        <div class="stat-item">CT: <span>35s</span></div>
+                    </div>
+                </div>
+                <!-- 2. Luffy & Bonney -->
+                <div class="char-card">
+                    <div class="char-header">
+                        <strong class="char-name">Luffy & Bonney</strong>
+                        <span class="badge-type badge-int">INT</span>
+                    </div>
+                    <div class="char-classes">
+                        <span class="class-tag">Free Spirit</span>
+                        <span class="class-tag">Cerebral</span>
+                    </div>
+                    <div class="char-stats">
+                        <div class="stat-item">ID: <span>#4490</span></div>
+                        <div class="stat-item">CT: <span>27s</span></div>
+                    </div>
+                </div>
+                <!-- 3. Luffy & Broggy -->
+                <div class="char-card">
+                    <div class="char-header">
+                        <strong class="char-name">Luffy & Broggy</strong>
+                        <span class="badge-type badge-str">STR</span>
+                    </div>
+                    <div class="char-classes">
+                        <span class="class-tag">Free Spirit</span>
+                    </div>
+                    <div class="char-stats">
+                        <div class="stat-item">ID: <span>#4537</span></div>
+                        <div class="stat-item">CT: <span>36s</span></div>
+                    </div>
+                </div>
+                <!-- 4. Red-Haired Shanks -->
+                <div class="char-card">
+                    <div class="char-header">
+                        <strong class="char-name">Red-Haired Shanks</strong>
+                        <span class="badge-type badge-str">STR</span>
+                    </div>
+                    <div class="char-classes">
+                        <span class="class-tag">Cerebral</span>
+                        <span class="class-tag">Slasher</span>
+                    </div>
+                    <div class="char-stats">
+                        <div class="stat-item">ID: <span>#4560</span></div>
+                        <div class="stat-item">CT: <span>28s</span></div>
+                    </div>
+                </div>
+                <!-- 5. Monkey D. Luffy -->
+                <div class="char-card">
+                    <div class="char-header">
+                        <strong class="char-name">Monkey D. Luffy</strong>
+                        <span class="badge-type badge-dex">DEX</span>
+                    </div>
+                    <div class="char-classes">
+                        <span class="class-tag">Fighter</span>
+                        <span class="class-tag">Powerhouse</span>
+                    </div>
+                    <div class="char-stats">
+                        <div class="stat-item">ID: <span>#4558</span></div>
+                        <div class="stat-item">CT: <span>32s</span></div>
+                    </div>
+                </div>
+                <!-- 6. Buggy the Genius Jester -->
+                <div class="char-card">
+                    <div class="char-header">
+                        <strong class="char-name">Buggy the Genius Jester</strong>
+                        <span class="badge-type badge-int">INT</span>
+                    </div>
+                    <div class="char-classes">
+                        <span class="class-tag">Slasher</span>
+                        <span class="class-tag">Cerebral</span>
+                    </div>
+                    <div class="char-stats">
+                        <div class="stat-item">ID: <span>#4564</span></div>
+                        <div class="stat-item">CT: <span>28s</span></div>
+                    </div>
+                </div>
+                <!-- 7. Bartholomew Kuma -->
+                <div class="char-card">
+                    <div class="char-header">
+                        <strong class="char-name">Bartholomew Kuma</strong>
+                        <span class="badge-type badge-int">INT</span>
+                    </div>
+                    <div class="char-classes">
+                        <span class="class-tag">Free Spirit</span>
+                        <span class="class-tag">Cerebral</span>
+                    </div>
+                    <div class="char-stats">
+                        <div class="stat-item">ID: <span>#4492</span></div>
+                        <div class="stat-item">CT: <span>40s</span></div>
+                    </div>
+                </div>
+                <!-- 8. Dr. Vegapunk -->
+                <div class="char-card">
+                    <div class="char-header">
+                        <strong class="char-name">Dr. Vegapunk</strong>
+                        <span class="badge-type badge-int">INT</span>
+                    </div>
+                    <div class="char-classes">
+                        <span class="class-tag">Cerebral</span>
+                        <span class="class-tag">Free Spirit</span>
+                    </div>
+                    <div class="char-stats">
+                        <div class="stat-item">ID: <span>#4137</span></div>
+                        <div class="stat-item">CT: <span>28s</span></div>
+                    </div>
+                </div>
+                <!-- 9. Dr. Vegapunk Atlas -->
+                <div class="char-card">
+                    <div class="char-header">
+                        <strong class="char-name">Dr. Vegapunk Atlas</strong>
+                        <span class="badge-type badge-int">INT</span>
+                    </div>
+                    <div class="char-classes">
+                        <span class="class-tag">Cerebral</span>
+                        <span class="class-tag">Fighter</span>
+                    </div>
+                    <div class="char-stats">
+                        <div class="stat-item">ID: <span>#4133</span></div>
+                        <div class="stat-item">CT: <span>33s</span></div>
+                    </div>
+                </div>
+                <!-- 10. Dr. Vegapunk Lilith -->
+                <div class="char-card">
+                    <div class="char-header">
+                        <strong class="char-name">Dr. Vegapunk Lilith</strong>
+                        <span class="badge-type badge-int">INT</span>
+                    </div>
+                    <div class="char-classes">
+                        <span class="class-tag">Cerebral</span>
+                        <span class="class-tag">Shooter</span>
+                    </div>
+                    <div class="char-stats">
+                        <div class="stat-item">ID: <span>#4082</span></div>
+                        <div class="stat-item">CT: <span>26s</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function switchTab(tabId) {
+            // Hide all tab content
+            document.querySelectorAll('.view-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            // Deactivate all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Show active tab and button
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        async function sendQuery() {
+            const input = document.getElementById("chatInput");
+            const query = input.value.trim();
+            if (!query) return;
+
+            // Clear input
+            input.value = "";
+
+            const messagesContainer = document.getElementById("chatMessages");
+            const loading = document.getElementById("loadingBubbles");
+            const sendBtn = document.getElementById("sendBtn");
+
+            // Disable UI
+            input.disabled = true;
+            sendBtn.disabled = true;
+
+            // Append User message
+            const userBubble = document.createElement("div");
+            userBubble.className = "chat-bubble bubble-user";
+            userBubble.innerText = query;
+            messagesContainer.appendChild(userBubble);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Show loading
+            loading.style.display = "flex";
+
+            try {
+                const response = await fetch("/api/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query: query })
+                });
+
+                const data = await response.json();
+                
+                // Hide loading
+                loading.style.display = "none";
+
+                // Append Agent message bubble
+                const agentBubble = document.createElement("div");
+                agentBubble.className = "chat-bubble bubble-agent";
+                
+                // Parse markdown-like bold text in response
+                let formattedAnswer = data.answer.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                formattedAnswer = formattedAnswer.replace(/- (.*?)\n/g, '• $1<br>');
+                formattedAnswer = formattedAnswer.replace(/\n/g, '<br>');
+
+                agentBubble.innerHTML = `<div>${formattedAnswer}</div>`;
+
+                // If ReAct steps are present, generate step drawer
+                if (data.steps && data.steps.length > 0) {
+                    const stepsBtn = document.createElement("button");
+                    stepsBtn.className = "chat-bubble-steps-btn";
+                    stepsBtn.innerHTML = "🔍 Xem Vòng Lặp ReAct Trực Quan";
+                    
+                    const stepsContainer = document.createElement("div");
+                    stepsContainer.className = "chat-steps-display";
+
+                    let stepsHtml = '<div class="react-timeline" style="margin-top: 10px; background: rgba(0,0,0,0.2); padding: 15px;">';
+                    let stepCount = 1;
+
+                    data.steps.forEach(step => {
+                        if (step.event === "LLM_RESPONSE") {
+                            stepsHtml += `
+                                <div class="timeline-step">
+                                    <div class="step-num">${stepCount++}</div>
+                                    <div class="step-content">
+                                        <div class="step-thought">${step.data.output.replace(/\n/g, '<br>')}</div>
+                            `;
+                        } else if (step.event === "TOOL_CALL") {
+                            stepsHtml += `
+                                        <div class="step-action-obs">
+                                            <div class="act-box">
+                                                <div class="act-title">Action (Gọi Công Cụ)</div>
+                                                <div class="act-cmd">${step.data.tool}("${step.data.args}")</div>
+                                            </div>
+                                            <div class="obs-box">
+                                                <div class="obs-title">Observation (Quan Sát)</div>
+                                                <div class="obs-data">Đã thu thập dữ liệu thành công. Độ dài phản hồi: ${step.data.result_length} ký tự.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+
+                    stepsHtml += '</div>';
+                    stepsContainer.innerHTML = stepsHtml;
+
+                    stepsBtn.onclick = () => {
+                        const isVisible = stepsContainer.style.display === "block";
+                        stepsContainer.style.display = isVisible ? "none" : "block";
+                        stepsBtn.innerText = isVisible ? "🔍 Xem Vòng Lặp ReAct Trực Quan" : "🙈 Ẩn Vòng Lặp ReAct";
+                    };
+
+                    agentBubble.appendChild(stepsBtn);
+                    agentBubble.appendChild(stepsContainer);
+                }
+
+                messagesContainer.appendChild(agentBubble);
+
+            } catch (e) {
+                loading.style.display = "none";
+                const errorBubble = document.createElement("div");
+                errorBubble.className = "chat-bubble bubble-agent";
+                errorBubble.style.borderColor = "var(--accent-error)";
+                errorBubble.innerText = "❌ Lỗi kết nối máy chủ hoặc quá tải API: " + e;
+                messagesContainer.appendChild(errorBubble);
+            }
+
+            // Enable UI
+            input.disabled = false;
+            sendBtn.disabled = false;
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            input.focus();
+        }
+    </script>
+</body>
+</html>

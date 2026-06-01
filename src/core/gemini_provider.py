@@ -2,17 +2,30 @@ import os
 import time
 import google.generativeai as genai
 from typing import Dict, Any, Optional, Generator
+from dotenv import load_dotenv
 from src.core.llm_provider import LLMProvider
 
+
 class GeminiProvider(LLMProvider):
-    def __init__(self, model_name: str = "gemini-1.5-flash", api_key: Optional[str] = None):
+    def __init__(self, model_name: str = "gemini-2.0-flash", api_key: Optional[str] = None):
+        # Auto-load API key from .env if not provided
+        if api_key is None:
+            load_dotenv()
+            api_key = os.getenv("GEMINI_API_KEY")
+        
+        if not api_key:
+            raise ValueError(
+                "GEMINI_API_KEY not found! Please set it in your .env file or pass it directly.\n"
+                "Get a free key at: https://aistudio.google.com/app/apikey"
+            )
+
         super().__init__(model_name, api_key)
         genai.configure(api_key=self.api_key)
         self.model = genai.GenerativeModel(model_name)
 
     def generate(self, prompt: str, system_prompt: Optional[str] = None) -> Dict[str, Any]:
         start_time = time.time()
-        
+
         # In Gemini, system instruction is passed during model initialization or as a prefix
         # For simplicity in this lab, we'll prepend it if provided
         full_prompt = prompt
