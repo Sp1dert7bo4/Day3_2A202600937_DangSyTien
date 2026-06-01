@@ -1,8 +1,8 @@
 # Individual Report: Lab 3 - Chatbot vs ReAct Agent
 
-- **Student Name**: Đặng Sỹ Tiến
-- **Student ID**: 2A202600937
-- **Date**: 2026-06-01
+- **Student Name**: [Your Name Here]
+- **Student ID**: [Your ID Here]
+- **Date**: [Date Here]
 
 ---
 
