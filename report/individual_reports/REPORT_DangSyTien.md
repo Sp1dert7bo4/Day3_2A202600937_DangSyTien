@@ -84,4 +84,5 @@ Trong quá trình phát triển, tôi đã phân tích và khắc phục thành 
 
 - **Scalability**: Triển khai cơ chế chạy công cụ không đồng bộ (Asynchronous execution) để có thể gọi nhiều bộ lọc `search_box` cùng một lúc nhằm tăng tốc độ xử lý tổng thể của Agent.
 - **Safety**: Xây dựng một tầng LLM kiểm duyệt hành động (Supervisor layer) để kiểm tra các tham số công cụ được trích xuất trước khi thực thi nhằm ngăn chặn lỗi chèn mã độc (prompt injection) hoặc phá hoại hệ thống.
+- **Database & Write Support**: Chuyển đổi cơ sở dữ liệu tướng từ tệp tĩnh Python (`optc_data.py`) sang cơ sở dữ liệu quan hệ động **SQLite**. Đồng thời phát triển thêm công cụ ghi mới cho Agent (ví dụ: `add_character_to_box`) để cho phép người dùng tự động khai báo, cập nhật và lưu trữ vĩnh viễn tướng mới vào bể tướng trực tiếp thông qua khung chat.
 - **Performance**: Chuyển đổi từ tìm kiếm khớp từ khóa thông thường sang cơ sở dữ liệu vector (Vector Database như ChromaDB hoặc FAISS) kết hợp tìm kiếm ngữ nghĩa (semantic search) khi số lượng tướng trong game mở rộng từ hàng chục lên hàng ngàn nhân vật.
